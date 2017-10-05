@@ -19,21 +19,17 @@ RUN apk add \
   make \
   ca-certificates \
   openssl \
-  make
-
-RUN mkdir -p ${SRC_DIR} \
+  make \
+  build-base \
+  openblas-dev \
+  linux-headers \
+&& mkdir -p ${SRC_DIR} \
   && cd ${SRC_DIR} \
   && wget https://github.com/opencv/opencv/archive/3.2.0.zip \
   && unzip 3.2.0.zip \
   && mv opencv-3.2.0 opencv \
-  && rm 3.2.0.zip
-
-RUN apk add \
-  build-base \
-  openblas-dev \
-  linux-headers
-
-RUN cd ${SRC_DIR}/opencv \
+  && rm 3.2.0.zip \
+  && cd opencv \
   && mkdir build \
   && cd build \
   && cmake \
@@ -41,6 +37,8 @@ RUN cd ${SRC_DIR}/opencv \
       -D CMAKE_INSTALL_PREFIX=/usr/local \
       -D INSTALL_PYTHON_EXAMPLES=ON .. \
   && make -j4 VERBOSE=1 \
-  && make install
-
-RUN pip install -r /tmp/requirements.txt
+  && make install \
+&& pip install --upgrade pip \
+  && pip install -r /tmp/requirements.txt \
+&& rm -rf ${SRC_DIR} \
+&& rm -rf /var/cache/apk/*
